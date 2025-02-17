@@ -20,7 +20,7 @@ export default function Home() {
             </code>
             .
           </li>
-          <Button appName="web" className="bg-orange-600">lol</Button>
+          <Button appName="web" className="bg-orange-600">lol part2</Button>
           <li>Save and see your changes instantly.</li>
         </ol>
 
