@@ -1,5 +1,5 @@
 {
-  "name": "smart_plate",
+  "name": "smartplate",
   "private": true,
   "scripts": {
     "build": "turbo run build",
