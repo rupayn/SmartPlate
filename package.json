@@ -24,6 +24,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@prisma/client": "^6.4.0"
+    "@prisma/client": "^6.4.0",
+    "next-cloudinary": "^6.16.0"
   }
 }
