@@ -34,3 +34,13 @@ export const asyncHandler=function(asFunc:asFuncType){
         Promise.resolve(asFunc(req,res,next)).catch(err=>next(err))
     }
 }
+
+export class customError extends Error {
+  statusCode: number;
+  data: Record<string, any>;
+  constructor(msg = "Something went Wrong", statusCode = 400, data = {}) {
+    super(msg);
+    (this.statusCode = statusCode);
+    this.data = data;
+  }
+}

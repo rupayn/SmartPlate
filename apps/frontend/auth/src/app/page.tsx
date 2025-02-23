@@ -2,6 +2,7 @@ import Sign from "@/components/sign"
 import Image from "next/image";
 import im from "../../public/images.jpeg";
 
+
 export default function HomePage(){
   return (
     <>
@@ -19,7 +20,9 @@ export default function HomePage(){
               ["Email", "email"],
               ["Password", "password"],
               ["Re-enter Password", "password"],
+            
             ]}
+            link="/api/signup"
             accountStatus="signup"
           />
           

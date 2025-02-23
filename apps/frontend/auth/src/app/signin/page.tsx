@@ -17,6 +17,7 @@ export default function Signin() {
               ["Password", "password"],
             ]}
             accountStatus="signin"
+            link="api/signin"
           />
         </div>
       </div>
