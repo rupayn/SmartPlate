@@ -50,7 +50,7 @@ function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
         signIn("credentials", {
           email: e,
           password: inputValues["Password"],
-          callbackUrl:"/actions",
+          callbackUrl:"/",
           redirect:true
         });
         toast.success("Form submitted successfully!");
