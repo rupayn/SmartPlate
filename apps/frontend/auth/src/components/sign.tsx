@@ -42,22 +42,7 @@ function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
         toast.error(`${response.data.error}`);
       }
       else{
-<<<<<<< HEAD
-=======
-        let e;
-        if (inputValues["Enrollment No / Email"]){
-          e = inputValues["Enrollment No / Email"];
-        }
-        else{
-          e = inputValues["Email"];
-        }
-        signIn("credentials", {
-          email: e,
-          password: inputValues["Password"],
-          callbackUrl:"/",
-          redirect:true
-        });
->>>>>>> f59c3fc9b20321709e92889663caf9e2b3145f71
+
         toast.success("Form submitted successfully!");
         window.location.href="http://localhost:3000/"
       }
