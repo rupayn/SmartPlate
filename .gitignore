@@ -36,3 +36,6 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+packages/db/prisma/migrations/migration_lock.toml
+packages/db/prisma/migrations/20250222073350_init/migration.sql
+packages/db/prisma/migrations/20250226192156_user_schema/migration.sql
