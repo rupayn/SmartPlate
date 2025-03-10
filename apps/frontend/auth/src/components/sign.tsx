@@ -11,13 +11,17 @@ type InputFieldsType = {
   inputFilds: string[][];
   accountStatus: string;
   link: string;
+  imageData?:File
 };
 
-function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
+function SignForm({
+  inputFilds,
+  accountStatus,
+  link,
+  imageData,
+}: InputFieldsType) {
   const [ipType, setIpType] = useState("password");
   const [inputValues, setInputValues] = useState<{ [key: string]: string }>({});
-
- 
 
   const showPass = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,15 +40,29 @@ function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
     e.preventDefault(); // Prevent page reload
 
     try {
-      const response = await axios.post(link, inputValues);
-
+    
+      // if (imageData)
+      //   setInputValues({ ...inputValues,  [img]:imageData });
+      const fromData=new FormData();
+      Object.entries(inputValues).forEach(([key,value])=>{
+        fromData.append(key,value)
+      })
+      if(imageData) fromData.append("image",imageData)
+      const response = await axios.post(link, fromData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensures proper handling of files
+        },
+      });
+      console.log("\n\nerror\n\n")
+      console.log(response.data);
+      console.log("\n\nerror\n\n")
+      
       if (response.data.error) {
-        toast.error(`${response.data.error}`);
-      }
-      else{
 
+        toast.error(`${response.data.error}`);
+      } else {
         toast.success("Form submitted successfully!");
-        window.location.href="http://localhost:3000/"
+        window.location.href = "http://localhost:3000/";
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -98,10 +116,15 @@ function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
         </button>
       </form>
       <span className="sm:flex">
-        <p>{accountStatus === "signup"?'Already have Account?':"Don't have account? "}</p>
+        <p>
+          {accountStatus === "signup"
+            ? "Already have Account?"
+            : "Don't have account? "}
+        </p>
         <Link
-         className="sm:ml-1 sm:bg-transparent sm:text-pink-400 sm:focus:text-red-600 text-center bg-pink-400 block focus:bg-orange-900 sm:focus:bg-transparent" 
-        href={accountStatus === "signup" ? `/signin` : `/`}>
+          className="sm:ml-1 sm:bg-transparent sm:text-pink-400 sm:focus:text-red-600 text-center bg-pink-400 block focus:bg-orange-900 sm:focus:bg-transparent"
+          href={accountStatus === "signup" ? `/signin` : `/`}
+        >
           {accountStatus === "signup" ? "signin" : "signup"}
         </Link>
       </span>
