@@ -10,7 +10,7 @@ export function GET(){
 
 export async function POST(req:NextRequest){
     const body=await req.json();
-    console.log(body["Full Name"], body["Enrollment No"], body["Email"], body["Password"], body["Re-enter Password"]);
+    
     const salt = parseInt(process.env.BCRYPT_SALT!);
     const encryptedPassword = await bcrypt.hash(
       body["Password"],

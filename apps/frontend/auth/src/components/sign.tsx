@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+
 
 type InputFieldsType = {
   inputFilds: string[][];
@@ -16,6 +16,8 @@ type InputFieldsType = {
 function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
   const [ipType, setIpType] = useState("password");
   const [inputValues, setInputValues] = useState<{ [key: string]: string }>({});
+
+ 
 
   const showPass = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,25 +37,13 @@ function SignForm({ inputFilds, accountStatus, link }: InputFieldsType) {
 
     try {
       const response = await axios.post(link, inputValues);
-      console.log("Response:", response.data); // Check response in browser console
+
       if (response.data.error) {
         toast.error(`${response.data.error}`);
       }
       else{
-        let e;
-        if (inputValues["Enrollment No / Email"]){
-          e = inputValues["Enrollment No / Email"];
-        }
-        else{
-          e = inputValues["Email"];
-        }
-        signIn("credentials", {
-          email: e,
-          password: inputValues["Password"],
-          callbackUrl:"/actions",
-          redirect:true
-        });
         toast.success("Form submitted successfully!");
+        window.location.href="http://localhost:3000/"
       }
     } catch (error) {
       console.error("Error submitting form:", error);

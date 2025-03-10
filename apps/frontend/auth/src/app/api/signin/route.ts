@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import {prisma} from "@repo/db/config"
 import bcrypt from "bcrypt"
-
+import { cookies } from "next/headers";
+import { jwtEncryptUser, objectFilter } from "@repo/common/config"
 export function GET(){
     return NextResponse.json({
         message: "Hello, Next.js Serverless Functions!",
         name: "John Doe"
     })
+}
+interface userInterface {
+  name: string ;
+  id: number ;
+  email: string ;
+  enrollment: number ;
+  created_at: object ;
+  updated_at: object ;
+  avatar: string ;
+  isAdmin: boolean ;
 }
 export async function POST(req:NextRequest){
     try {
@@ -45,6 +56,23 @@ export async function POST(req:NextRequest){
                error: "Password Incorrect",
              });
         }
+        
+        const userWithoutPass:userInterface =await objectFilter(user, "password");
+        
+        const encryptUser:string = await jwtEncryptUser(
+          userWithoutPass,
+          String(process.env.NEXTAUTH_SECRET)
+        );
+        const cookieStore=await cookies();
+        cookieStore.set({
+          name: "next-auth-token",
+          value: encryptUser,
+          httpOnly: true,
+          path: "/",
+          sameSite: "lax",
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+          domain: "localhost",
+        });
         return NextResponse.json({
             message: "Hello, Next.js Serverless Functions!",
             user
