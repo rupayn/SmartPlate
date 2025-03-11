@@ -1,14 +1,30 @@
 import { prisma } from "@repo/db/config";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+
 import { cookies } from "next/headers";
-import fs from "fs";
-import path from "path"
+
 import {
     jwtEncryptUser,
     objectFilter,
     userInterface,
 } from "@repo/common/config";
+
+import { cloudinaryConfigFun,cloudinary } from "@repo/common/config";
+// import {v2 as cloudinary} from "cloudinary"
+
+type cloudinaryUploadResult = {
+    public_id: string;
+    secure_url: string;
+    url: string;
+} & Record<string, unknown>;
+
+cloudinaryConfigFun({
+     cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+     api_key: process.env.CLOUDINARY_API_KEY!,
+     api_secret: process.env.CLOUDINARY_API_SECRET!,
+     secure: true,
+ });
 
 export function GET() {
     return NextResponse.json({
@@ -18,16 +34,17 @@ export function GET() {
 }
 
 export async function POST(req: NextRequest) {
+    
     try {
-        const fromdata = await req.formData();
+        const fromData = await req.formData();
 
         const salt = parseInt(process.env.BCRYPT_SALT!);
 
         const tempUser = {
-            name: fromdata.get("Full Name") as string,
-            enrollment: parseInt(fromdata.get("Enrollment No") as string),
-            email: fromdata.get("Email") as string,
-            password: fromdata.get("Password") as string,
+            name: fromData.get("Full Name") as string,
+            enrollment: parseInt(fromData.get("Enrollment No") as string),
+            email: fromData.get("Email") as string,
+            password: fromData.get("Password") as string,
         };
         for (const [key, value] of Object.entries(tempUser)) {
             if (!value) {
@@ -38,35 +55,44 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const img = fromdata.get("image") as File | null;
+        const img = fromData.get("image") as File | null;
+        let result;
         if (img) {
+            if (img.size > 1024 * 1024 * 20) 
+                return NextResponse.json({
+                    success:false,
+                    error:"Image Size excide"
+                })
             const bytes = await img.arrayBuffer();
             const buffer = Buffer.from(bytes);
             const fileName = `${Date.now()}-${img.name.replace(/\s+/g,'-')}`;
-            const uploadDir=path.join(process.cwd(),'public/uploads')
-            fs.stat("/Users/joe/test.txt", (err, stats) => {
-                if (err) {
-                    throw  err;
-                }
-                if(stats.size>1024 * 1024 * 20){
-                    return NextResponse.json({
-                        success: false,
-                        error: "Image size exceeds 20MB",
-                    })
-                }
-                
-            });
+            
+            
+            if (buffer.length > 1024 * 1024 * 20) {
+                return NextResponse.json({
+                    success: false,
+                    error: "Image size exceeds 20MB",
+                });
+            }
             try {
-                if (!fs.existsSync(uploadDir)){
-                    await fs.promises.mkdir(uploadDir, { recursive: true });
-                }
-                    await fs.promises.writeFile(
-                        `${uploadDir}/${fileName}`,
-                        buffer
-                    ); 
+ 
+                    result = await new Promise<cloudinaryUploadResult>((resolve,reject)=>{
+                        const uploadStream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: "uploads",
+                                public_id: `${fileName}`,
+                            },
+
+                            (errUpload, resUpload) => {
+                                if (errUpload) reject(errUpload);
+                                else resolve(resUpload as cloudinaryUploadResult);
+                            }
+                        );
+                        uploadStream.end(buffer)
+                    })
+                    
             } catch (error) {
-                const filePath = path.join(uploadDir, fileName);
-                if(img) await fs.promises.unlink(filePath)
+                
                 throw error;    
             }
         }
@@ -91,7 +117,12 @@ export async function POST(req: NextRequest) {
                 enrollment,
                 email,
                 password,
-                avatar: `https://api.dicebear.com/7.x/identicon/svg?seed=${name}`,
+                avatar:
+                    result && result.secure_url
+                        ? result.secure_url
+                        : `https://api.dicebear.com/7.x/identicon/svg?seed=${name}`,
+                avatar_id:
+                    result && result.secure_url ? String(result.public_id) : "1234",
             },
         });
 
@@ -102,7 +133,9 @@ export async function POST(req: NextRequest) {
 
         const encryptUser: string = await jwtEncryptUser(
             userWithoutPass,
-            String(process.env.NEXTAUTH_SECRET)
+            String(
+                process.env.NEXTAUTH_SECRET
+            )
         );
 
         const cookieStore = await cookies();
