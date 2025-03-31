@@ -3,6 +3,7 @@ import cors from "cors"
 import "dotenv/config"
 import cookieParser from "cookie-parser"
 import jwt from "jsonwebtoken"
+import { menuRouter } from "./src/routes/menu.routes"
 const app = express()
 const port=process.env.PORT||8000
 app.use(cors({
@@ -20,6 +21,7 @@ app.get('/',(req,res)=>{
         message:"Hello from Express Server"
     })
 })
+app.use("/api",menuRouter)
 
 app.listen(port,()=>{
     console.log(`Server running on port http://localhost:${port}/`)
