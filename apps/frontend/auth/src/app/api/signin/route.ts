@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {prisma} from "@repo/db/config"
+import { userInterface } from "@repo/common/config";
 import bcrypt from "bcrypt"
 import { cookies } from "next/headers";
 import { jwtEncryptUser, objectFilter } from "@repo/common/config"
@@ -9,27 +10,18 @@ export function GET(){
         name: "John Doe"
     })
 }
-interface userInterface {
-  name: string ;
-  id: number ;
-  email: string ;
-  enrollment: number ;
-  created_at: object ;
-  updated_at: object ;
-  avatar: string ;
-  isAdmin: boolean ;
-}
+
 export async function POST(req:NextRequest){
     try {
-        const data = await req.json();
-        const emailOrEnroll=parseInt(data["Enrollment No / Email"]);
+        const fromData = await req.formData();
+        const emailOrEnroll = parseInt(fromData.get("Enrollment No / Email") as string);
         let user;
         
         if(!emailOrEnroll){
             user = await prisma.user.findFirst({
-              where: {
-                email: data["Enrollment No / Email"],
-              },
+                where: {
+                    email: fromData.get("Enrollment No / Email") as string,
+                },
             });
         }
         else{
@@ -47,13 +39,17 @@ export async function POST(req:NextRequest){
             })
         }
         // const salt = parseInt(process.env.BCRYPT_SALT!);
-        const checkPass = await bcrypt.compare(data["Password"], user.password);
+        const checkPass = await bcrypt.compare(
+            fromData.get("Password") as string,
+            user.password
+        );
        
         
         if(!checkPass){
              return NextResponse.json({
-               status: 404,
-               error: "Password Incorrect",
+                success:false,
+                status: 404,
+                error: "Password Incorrect",
              });
         }
         

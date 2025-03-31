@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-
+import { v2 as cloudinary } from "cloudinary";
 class ApiErrorHandler extends Error {
   statusCode: number;
   data: any = null;
@@ -47,14 +47,15 @@ export class customError extends Error {
   }
 }
 export interface userInterface {
-  name: string;
-  id: number;
-  email: string;
-  enrollment: number;
-  created_at: object;
-  updated_at: object;
-  avatar: string;
-  isAdmin: boolean;
+    name: string;
+    id: number;
+    email: string;
+    enrollment: number;
+    created_at: object;
+    updated_at: object;
+    avatar: string;
+    isAdmin: boolean;
+    avatar_id:string
 }
 export async function jwtEncryptUser(user: userInterface, secret: string) {
   const userEnc =  String( jwt.sign(user, secret));
@@ -80,7 +81,19 @@ export async function objectFilter<
   return Object.fromEntries(objEntries) as Omit<T,U> ;
 }
 
-/*
-: Promise<Partial<T>>
-as Partial<T>
-*/
+type cloudinaryFunInput = {
+    cloud_name:string;
+    api_key:string;
+    api_secret:string;
+    secure:boolean;
+};
+export const cloudinaryConfigFun=(e:cloudinaryFunInput)=>{
+  cloudinary.config({
+    cloud_name:e.cloud_name,
+    api_key: e.api_key,
+    api_secret: e.api_secret,
+    secure: e.secure,
+  })
+}
+
+export {cloudinary}
