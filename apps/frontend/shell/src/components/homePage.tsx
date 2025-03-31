@@ -145,7 +145,7 @@ function HomePage() {
                       <h2 className='text-center text-5xl font-bold mb-10'>Bread Egg</h2>
                       <p className="text-xl mb-5 tracking-wide">
                           The food that is devoted to breakfast this morning
-                          consists of bread stuffed with various kinds
+                          consists of bread stuffed with various kindsss
                       </p>
                   </div>
               </div>
