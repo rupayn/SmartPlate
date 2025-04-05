@@ -62,7 +62,6 @@ export const addMenuItem=async (item:MenuItem)=>{
                 updatedAt:new Date(),
                 is_veg:item.is_veg
 
-            
             }
         });
 
